@@ -1,0 +1,15 @@
+INPUT(
+./debug\main.o
+./debug\mainwidget.o
+./debug\bottomwidget.o
+./debug\playlistwidget.o
+./debug\progressslider.o
+./debug\videowidget.o
+./debug\volumeslider.o
+./debug\moc_mainwidget.o
+./debug\moc_bottomwidget.o
+./debug\moc_playlistwidget.o
+./debug\moc_progressslider.o
+./debug\moc_videowidget.o
+./debug\moc_volumeslider.o
+);
