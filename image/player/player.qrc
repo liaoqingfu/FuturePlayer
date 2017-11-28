@@ -1,0 +1,30 @@
+<RCC>
+    <qresource prefix="/new/player">
+        <file>appIcon.jpg</file>
+        <file>appIcon.png</file>
+        <file>backward.png</file>
+        <file>backwardHovered.png</file>
+        <file>close.png</file>
+        <file>closeHovered.png</file>
+        <file>forward.png</file>
+        <file>forwardHovered.png</file>
+        <file>itemLoop.png</file>
+        <file>itemOnce.png</file>
+        <file>listLoop.png</file>
+        <file>maximize.png</file>
+        <file>maximizeHovered.png</file>
+        <file>minimize.png</file>
+        <file>minimizeHovered.png</file>
+        <file>pause.png</file>
+        <file>pauseHovered.png</file>
+        <file>play.png</file>
+        <file>player.qrc</file>
+        <file>playHovered.png</file>
+        <file>random.png</file>
+        <file>sequential.png</file>
+        <file>stop.png</file>
+        <file>stopHovered.png</file>
+        <file>volume.png</file>
+        <file>volumeHovered.png</file>
+    </qresource>
+</RCC>

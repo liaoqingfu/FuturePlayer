@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets multimedia multimediawidgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets multimedia multimediawidgets sql
 
 TARGET = FuturePlayer
 TEMPLATE = app
@@ -23,6 +23,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 
+INCLUDEPATH += $$PWD/ffmpeg/include
+INCLUDEPATH += $$PWD/SDL2/include
+LIBS += $$PWD/ffmpeg/lib/avformat.lib   \
+        $$PWD/ffmpeg/lib/avcodec.lib    \
+        $$PWD/ffmpeg/lib/avdevice.lib   \
+        $$PWD/ffmpeg/lib/avfilter.lib   \
+        $$PWD/ffmpeg/lib/avutil.lib     \
+        $$PWD/ffmpeg/lib/postproc.lib   \
+        $$PWD/ffmpeg/lib/swresample.lib \
+        $$PWD/ffmpeg/lib/swscale.lib    \
+        $$PWD/SDL2/lib/x86/SDL2.lib
+
 SOURCES += \
         main.cpp \
         mainwidget.cpp \
@@ -30,7 +42,22 @@ SOURCES += \
     playlistwidget.cpp \
     progressslider.cpp \
     videowidget.cpp \
-    volumeslider.cpp
+    volumeslider.cpp \
+    decoder.cpp \
+    filter.cpp \
+    videodisplay.cpp \
+    audiooutput.cpp \
+    player.cpp \
+    urlprotocol.cpp \
+    demuxer.cpp \
+    avthread.cpp \
+    audiothr.cpp \
+    videothr.cpp \
+    demuxerthr.cpp \
+    ffdemux.cpp \
+    formatcontext.cpp \
+    buffer.cpp \
+    ffcommon.cpp
 
 HEADERS += \
         mainwidget.h \
@@ -38,7 +65,27 @@ HEADERS += \
     playlistwidget.h \
     progressslider.h \
     videowidget.h \
-    volumeslider.h
+    volumeslider.h \
+    decoder.h \
+    filter.h \
+    videodisplay.h \
+    audiooutput.h \
+    player.h \
+    urlprotocol.h \
+    demuxer.h \
+    avthread.h \
+    audiothr.h \
+    videothr.h \
+    demuxerthr.h \
+    ffdemux.h \
+    formatcontext.h \
+    buffer.h \
+    timestamp.h \
+    packet.h \
+    ffcommon.h
 
 FORMS += \
         mainwidget.ui
+
+RESOURCES += \
+    image/player/player.qrc
