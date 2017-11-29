@@ -57,7 +57,8 @@ SOURCES += \
     ffdemux.cpp \
     formatcontext.cpp \
     buffer.cpp \
-    ffcommon.cpp
+    ffcommon.cpp \
+    writer.cpp
 
 HEADERS += \
         mainwidget.h \
@@ -73,7 +74,6 @@ HEADERS += \
     player.h \
     urlprotocol.h \
     demuxer.h \
-    avthread.h \
     audiothr.h \
     videothr.h \
     demuxerthr.h \
@@ -82,7 +82,9 @@ HEADERS += \
     buffer.h \
     timestamp.h \
     packet.h \
-    ffcommon.h
+    ffcommon.h \
+    avthread.hpp \
+    writer.hpp
 
 FORMS += \
         mainwidget.ui

@@ -8,10 +8,10 @@
  *
  * 播放器的统一接口
  ******************************************/
-class Player
+class LPlayer
 {
 public:
-    Player();
+    LPlayer();
     void play(const QString &);             // 播放
     void stop(bool quitApp = false);        // 停止
     void restart();
@@ -28,7 +28,7 @@ public:
     void setSpeed(double);
 
     bool isPlaying() const;
-
+    void loadSubsFile(const QString &fileName);
     inline QString getUrl() const
     {
         return url;
