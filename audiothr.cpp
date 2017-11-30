@@ -1,5 +1,5 @@
 #include "audiothr.h"
-#include "player.h"
+#include "player.hpp"
 
 AudioThr::AudioThr(LPlayer &player, const QStringList &pluginsName) :
      AVThread(player, "audio:", nullptr, pluginsName)

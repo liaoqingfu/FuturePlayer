@@ -1,5 +1,5 @@
 #include "videothr.hpp"
-#include "player.h"
+#include "player.hpp"
 #include "writer.hpp"
 
 VideoThr::VideoThr(LPlayer &playC, Writer *hwAccelWriter, const QStringList &pluginsName) :

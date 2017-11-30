@@ -481,3 +481,8 @@ void FormatContext::setStreamOffset(double offset)
 
 
 }
+
+QByteArray FormatContext::image(bool forceCopy) const
+{
+
+}

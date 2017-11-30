@@ -66,7 +66,10 @@ SOURCES += \
     playerosd.cpp \
     videoframe.cpp \
     ffdec.cpp \
-    streaminfo.cpp
+    streaminfo.cpp \
+    setting.cpp \
+    modulefactory.cpp \
+    packetbuffer.cpp
 
 HEADERS += \
         mainwidget.h \
@@ -79,11 +82,9 @@ HEADERS += \
     filter.h \
     videodisplay.h \
     audiooutput.h \
-    player.h \
     urlprotocol.h \
     demuxer.h \
     audiothr.h \
-    demuxerthr.h \
     ffdemux.h \
     formatcontext.h \
     timestamp.h \
@@ -101,7 +102,12 @@ HEADERS += \
     videoframe.hpp \
     buffer.hpp \
     ffdec.hpp \
-    streaminfo.hpp
+    streaminfo.hpp \
+    setting.hpp \
+    modulefactory.hpp \
+    demuxerthr.hpp \
+    packetbuffer.hpp \
+    player.hpp
 
 FORMS += \
         mainwidget.ui

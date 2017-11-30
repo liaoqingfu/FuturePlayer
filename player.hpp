@@ -2,18 +2,32 @@
 #define PLAYER_H
 
 #include <QTimer>
-#include "demuxerthr.h"
+#include <QImage>
+#include "demuxerthr.hpp"
 #include "videothr.hpp"
 #include "audiothr.h"
+#include "packetbuffer.hpp"
+
+enum
+{
+    SEEK_NOWHERE = -1,
+    SEEK_STREAM_RELOAD = -2, /* Seeks to current position after stream reload */
+    SEEK_REPEAT = -3
+};
 
 /*******************************************
  *
  * 播放器的统一接口
  ******************************************/
+
+
+
 class LPlayer
 {
+    Q_OBJECT
 public:
-    LPlayer();
+    LPlayer(){ }
+    virtual ~LPlayer() {}
     void play(const QString &);             // 播放
     void stop(bool quitApp = false);        // 停止
     void restart();
@@ -46,9 +60,9 @@ public:
     double vol[2], replayGain, zoom, pos, skipAudioFrame, videoSync, speed, subtitlesSync, subtitlesScale;
     int flip;
     bool rotate90, spherical, stillImage;
+    QString url, newUrl, aRatioName;
 
-
-private:
+public:
     void stopVThr();
     void stopAThr();
     inline void stopAVThr();
@@ -56,12 +70,13 @@ private:
     void stopVDec();
     void stopADec();
 
-private:
+public:
     DemuxerThr *demuxThr;
     VideoThr *vThr;
     AudioThr *aThr;
 
-    QString url, newUrl, aRatioName;
+    PacketBuffer aPackets, vPackets, sPackets;
+
     int audioStream, videoStream, subtitlesStream;
     int choosenAudioStream, choosenVideoStream, choosenSubtitlesStream;
     QString choosenAudioLang, choosenSubtitlesLang;
@@ -70,6 +85,32 @@ private:
 
     bool quitApp, audioEnabled, videoEnabled, subtitlesEnabled, doSuspend, doRepeat, allowAccurateSeek;
     QTimer timTerminate;
+/*
+signals:
+    void frameSizeUpdate(int w, int h);
+    void audioParamsUpdate(quint8 channels, quint32 sampleRate);
+    void aRatioUpdate(double sar);
+    void pixelFormatUpdate(const QByteArray &pixFmt);
+    void chText(const QString &);
+    void updateLength(int);
+    void updatePos(int);
+    void playStateChanged(bool);
+    void setCurrentPlaying();
+    void setInfo(const QString &, bool, bool);
+    void updateCurrentEntry(const QString &, double);
+    void playNext(bool playingError);
+    void clearCurrentPlaying();
+    void clearInfo();
+    void quit();
+    void resetARatio();
+    void updateBitrateAndFPS(int a, int v, double fps = -1.0, double realFPS = -1.0, bool interlaced = false);
+    void updateBuffered(qint64 backwardBytes, qint64 remainingBytes, double backwardSeconds, double remainingSeconds);
+    void updateBufferedRange(int, int);
+    void updateWindowTitle(const QString &t = QString());
+    void updateImage(const QImage &img = QImage());
+    void videoStarted();
+    void uncheckSuspend();
+    */
 };
 
 #endif // PLAYER_H

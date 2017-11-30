@@ -4,6 +4,7 @@
 #include <QMutex>
 #include <QVector>
 #include "packet.h"
+#include "streaminfo.hpp"
 
 extern "C"
 {
@@ -37,9 +38,9 @@ public:
     bool open(const QString &_url, const QString &param = QString());
 
     void setStreamOffset(double offset);
-
+    QByteArray image(bool forceCopy) const;
     bool isLocal, isStreamed, isError;
-    //StreamsInfo streamsInfo;
+    StreamsInfo streamsInfo;
     double currPos;
 private:
 

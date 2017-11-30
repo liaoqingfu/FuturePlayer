@@ -1,12 +1,26 @@
-#include "player.h"
+#include "player.hpp"
 
+/*
 LPlayer::LPlayer()
 {
-
-}
+    videoEnabled = true;
+    audioEnabled = true;
+    subtitlesEnabled = true;
+}*/
 
 void LPlayer::play(const QString &_url)
 {
+    // 创建Demuxer线程
+    if (!demuxThr)
+    {
+        if (audioEnabled || videoEnabled)
+        {
+            audioStream = videoStream = subtitlesStream = -1;
+
+            url = _url;
+            demuxThr = new DemuxerThr(*this);
+        }
+    }
 }
 
 void LPlayer::stop(bool _quitApp)
