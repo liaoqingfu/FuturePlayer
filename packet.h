@@ -2,7 +2,7 @@
 #define PACKET_H
 
 #include <TimeStamp.h>
-#include <Buffer.h>
+#include <buffer.hpp>
 
 class Packet : public Buffer
 {

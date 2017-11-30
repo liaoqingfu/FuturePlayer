@@ -1,47 +1,12 @@
-#include "buffer.h"
+#include "buffer.hpp"
 
 
 /* Inline implementation */
 
-Buffer::Buffer(Buffer &&other)
+extern "C"
 {
-    move(other);
-}
-
-bool Buffer::isNull() const
-{
-    return m_bufferRef == nullptr;
-}
-bool Buffer::isEmpty() const
-{
-    return size() == 0;
-}
-
-qint32 Buffer::size() const
-{
-    return m_size;
-}
-
-const quint8 *Buffer::constData() const
-{
-    return data();
-}
-
-void Buffer::assign(const void *data, qint32 len)
-{
-    assign(data, len, len);
-}
-
-Buffer &Buffer::operator =(Buffer &&other)
-{
-    move(other);
-    return *this;
-}
-
-void Buffer::move(Buffer &other)
-{
-    qSwap(m_bufferRef, other.m_bufferRef);
-    qSwap(m_size, other.m_size);
+    #include <libavutil/buffer.h>
+    #include <libavutil/mem.h>
 }
 
 Buffer::Buffer(const Buffer &other) :
@@ -110,7 +75,6 @@ void Buffer::assign(AVBufferRef *otherBufferRef, qint32 len)
     m_bufferRef = otherBufferRef;
     m_size = (len >= 0 && len <= m_bufferRef->size) ? len : m_bufferRef->size;
 }
-
 void Buffer::assign(const void *data, qint32 len, qint32 mem)
 {
     if (mem < len)

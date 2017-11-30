@@ -1,4 +1,4 @@
-#include "videothr.h"
+#include "videothr.hpp"
 #include "player.h"
 #include "writer.hpp"
 
@@ -11,4 +11,24 @@ VideoThr::VideoThr(LPlayer &playC, Writer *hwAccelWriter, const QStringList &plu
 VideoThr::~VideoThr()
 {
 
+}
+void VideoThr::run()
+{
+
+}
+
+void VideoThr::stop(bool terminate)
+{
+    playC.videoSeekPos = -1;
+    AVThread::stop(terminate);
+}
+
+void VideoThr::destroySubtitlesDecoder()
+{
+    deleteSubs = true;
+    if (sDec)
+    {
+        delete sDec;
+        sDec = nullptr;
+    }
 }

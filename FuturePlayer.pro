@@ -58,7 +58,15 @@ SOURCES += \
     formatcontext.cpp \
     buffer.cpp \
     ffcommon.cpp \
-    writer.cpp
+    writer.cpp \
+    audiofilter.cpp \
+    sndresampler.cpp \
+    videowriter.cpp \
+    videofilters.cpp \
+    playerosd.cpp \
+    videoframe.cpp \
+    ffdec.cpp \
+    streaminfo.cpp
 
 HEADERS += \
         mainwidget.h \
@@ -75,16 +83,25 @@ HEADERS += \
     urlprotocol.h \
     demuxer.h \
     audiothr.h \
-    videothr.h \
     demuxerthr.h \
     ffdemux.h \
     formatcontext.h \
-    buffer.h \
     timestamp.h \
     packet.h \
     ffcommon.h \
     avthread.hpp \
-    writer.hpp
+    writer.hpp \
+    audiofilter.hpp \
+    sndresampler.hpp \
+    videothr.hpp \
+    pixelformat.hpp \
+    videowriter.hpp \
+    videofilters.hpp \
+    playerosd.hpp \
+    videoframe.hpp \
+    buffer.hpp \
+    ffdec.hpp \
+    streaminfo.hpp
 
 FORMS += \
         mainwidget.ui
