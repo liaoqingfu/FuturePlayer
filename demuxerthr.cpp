@@ -7,7 +7,7 @@
 #include <QCryptographicHash>
 #include <QCoreApplication>
 #include <QDir>
-
+#include <QDebug>
 #include <cmath>
 
 static inline bool getCurrentPlaying(int stream, const QList<StreamInfo *> &streamsInfo, const StreamInfo *streamInfo)
@@ -225,13 +225,13 @@ void DemuxerThr::stopVADec()
 
 void DemuxerThr::run()
 {
-
+    qDebug() << "DemuxerThr::run() lily";
 }
 
 void DemuxerThr::stop()
 {
 
-    demuxer->abort();
+    //demuxer->abort();
 }
 
 void DemuxerThr::updateCover(const QString &title, const QString &artist, const QString &album, const QByteArray &cover)

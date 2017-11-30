@@ -31,6 +31,8 @@
 #include "playlistwidget.h"
 #include "videowidget.h"
 #include "player.hpp"
+#include "volumeslider.h"
+#include "progressslider.h"
 
 namespace Ui {
 class MainWidget;
@@ -118,7 +120,7 @@ private:
     QAction * openAction;
 
     //播放器控件
-    QMediaPlayer  *  mediaPlayer0;
+   // QMediaPlayer  *  mediaPlayer0;
     //QMediaPlayer  *  mediaPlayerWithList;
     VideoWidget *  videoWidget0;
 
@@ -135,10 +137,10 @@ private:
     ProgressSlider * slider;
     QLabel  * totalTimeLabel;
     QLabel  * presentTimeLabel;
-    LPlayer player;
+    LPlayer *player;
 
     QTimer *mediaTimer;
-
+    QString url;
 signals:
     void signalInRegion();
     void signalOutRegion();
@@ -147,7 +149,7 @@ public slots:
    void slotSetButton();
    void slotOpenFile();
    void slotSetValue(int value);
-   void slotStateChanged(QMediaPlayer::State);
+   void slotStateChanged(LPlayer::State);
    void slotDurationChanged(qint64);
    void slotPositionChanged(qint64);
    void slotPlayOrPause();

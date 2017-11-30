@@ -21,15 +21,32 @@ void LPlayer::play(const QString &_url)
 
             url = _url;
             demuxThr = new DemuxerThr(*this);
+            demuxThr->start();
+            state_ = PlayingState;
         }
     }
 }
 
 void LPlayer::stop(bool _quitApp)
 {
+    qDebug() << "LPlayer::stop entry";
+    if(demuxThr)
+    {
 
+        demuxThr->stop();
+        qDebug() << "LPlayer::stop entry2";
+        delete demuxThr;
+        qDebug() << "LPlayer::stop entry3";
+        demuxThr = nullptr;
+        state_ = StoppedState;
+    }
+    qDebug() << "LPlayer::stop exit";
 }
 
+LPlayer::State LPlayer::state()
+{
+    return state_;
+}
 void LPlayer::restart()
 {
 
@@ -49,7 +66,10 @@ void LPlayer::seek(double pos, bool allowAccurate)
 {
 
 }
+void LPlayer::setVolume(int volume)
+{
 
+}
 void LPlayer::chStream(const QString &s)
 {
 

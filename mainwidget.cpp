@@ -78,6 +78,7 @@ MainWidget::MainWidget(QWidget *parent) :
     this->setFocusPolicy(Qt::ClickFocus);
     //this->setAcceptDrops(true);    //设置可以接受拖拽
 
+    player = new LPlayer();
     normalRect.setWidth(windowIniWidth);
     normalRect.setHeight(windowIniHeight);
 
@@ -251,14 +252,8 @@ MainWidget::MainWidget(QWidget *parent) :
 
 
     //播放者
-    mediaPlayer0 = new QMediaPlayer;
-    mediaPlayer0->setVideoOutput(videoWidget0);
-    connect(mediaPlayer0, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(slotStateChanged(QMediaPlayer::State)));
-    connect(mediaPlayer0, SIGNAL(positionChanged(qint64)), this, SLOT(slotPositionChanged(qint64)));
-    connect(mediaPlayer0, SIGNAL(durationChanged(qint64)), this, SLOT(slotDurationChanged(qint64)));
-    connect(mediaPlayer0, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(slotHandleError()));
 
-    connect(volumeSlider, SIGNAL(sliderMoved(int)), mediaPlayer0, SLOT(setVolume(int)));//响应声音滑动条的移动
+
     connect(volumeSlider, SIGNAL(signalPressVolumePosition(qint64)), this, SLOT(slotPressVolumePosition(qint64)));
 
     connect(slider, SIGNAL(signalPressPosition(qint64)), this, SLOT(slotSignalPressPosition(qint64 )));
@@ -270,17 +265,6 @@ MainWidget::MainWidget(QWidget *parent) :
     connect(listWidget, &PlayListWidget::signalClearValidItem, this, &MainWidget::slotListWidgetClearValidItem);
     connect(listWidget, &PlayListWidget::signalOpenDirectory, this, &MainWidget::slotListWidgetOpenDirectory);
 
-    connect(videoWidget0, SIGNAL(signalInBottomRegion()), this, SLOT(slotInBottomRegion()));
-    connect(videoWidget0, SIGNAL(signalOutBottomRegion()), this, SLOT(slotOutBottomRegion()));
-    connect(videoWidget0, &VideoWidget::signalInRightRegion, this, &MainWidget::slotInRightRegion);
-    connect(videoWidget0, &VideoWidget::signalOutRightRegion, this, &MainWidget::slotOutRightRegion);
-    connect(videoWidget0, SIGNAL(signalMovePoint(QPoint)), this, SLOT(slotSignalMovePoint(QPoint)));
-    connect(videoWidget0, SIGNAL(signalLeftPressDown(bool)), this, SLOT(slotVideoWidgetMouseLeftDown(bool)));
-    connect(videoWidget0, SIGNAL(doubleClicked()), this, SLOT(slotVideoWidgetDoubleClicked()));
-    connect(videoWidget0, &VideoWidget::signalDropedList, this, &MainWidget::slotVideoWidgetDropedList);
-    connect(videoWidget0, &VideoWidget::signalActionOpen, this, &MainWidget::slotOpenFile);
-    connect(videoWidget0, &VideoWidget::signalActionInfo, this, &MainWidget::slotVideoWidgetActionInfo);
-
     iniDatabase();
 }
 
@@ -288,6 +272,7 @@ MainWidget::MainWidget(QWidget *parent) :
 
 MainWidget::~MainWidget()
 {
+    delete player;
     delete ui;
 }
 
@@ -304,8 +289,7 @@ void MainWidget::addFile(const QString fileName)
             {
                 //playList->setCurrentIndex(i);
                 playingIndex=i;
-                mediaPlayer0 ->setMedia(QUrl::fromLocalFile(fileName));
-                mediaPlayer0->play();
+                player->play(fileName);
                 listWidget->setCurrentRow(i);
                 listWidget->setIndex(i);
                 titleLabel->setText(removeIndexFromAppend(vector.at(i).second));
@@ -391,10 +375,9 @@ void MainWidget::addFile(const QString fileName)
             {
                 playButton->setEnabled(true);
             }
-            mediaPlayer0 ->setMedia(QUrl::fromLocalFile(fileName));
-            mediaPlayer0->play();
+           player->play(fileName);
             playingIndex = vector.size()-1;
-            volumeSlider->setValue(mediaPlayer0->volume()); //修改声音滑动条
+            volumeSlider->setValue(player->getVolume()); //修改声音滑动条
             listWidget->setCurrentRow(playingIndex);
             listWidget->setIndex(playingIndex);
 
@@ -598,7 +581,7 @@ void MainWidget::iniDatabase()
             QPair<QString, QString> pair1(name, fileName);
             QPair<QPair<QString, QString>, QString>pair(pair1,nameAppend);
             vector.push_back(pair);
-            //playList->addMedia(QUrl::fromLocalFile(fileName));
+            //playList->addMedia(fileName));
             listWidget->addItem(removeIndexFromAppend(nameAppend));
 
             if(vector.isEmpty())
@@ -895,7 +878,7 @@ void MainWidget::slotCloseWidget()
 //显示错误
 void MainWidget::slotHandleError()
 {
-    qDebug()<<"Error:  " << mediaPlayer0->errorString();
+     qDebug()<<"Error:  ";
 }
 
 //设置隐藏按钮
@@ -1131,7 +1114,7 @@ void MainWidget::slotListWidgetItemDoubleClick(QString name)
 {
     qDebug()<<"name:  "<<name.toStdString().c_str();
     int i;
-    player.play(name);
+
     QString temp = name.append("(0)");
     for(i=0;i<vector.size();i++)
     {
@@ -1145,8 +1128,7 @@ void MainWidget::slotListWidgetItemDoubleClick(QString name)
             titleLabel->setText(removeIndexFromAppend(vector.at(i).second));
             playingIndex = i;
             qDebug()<<"vector.at(i).first.second:  "<<vector.at(i).first.second;
-            mediaPlayer0 ->setMedia(QUrl::fromLocalFile(vector.at(i).first.second));
-            mediaPlayer0->play();
+            player->play(vector.at(i).first.second);
             break;
         }
 
@@ -1157,8 +1139,7 @@ void MainWidget::slotListWidgetItemDoubleClick(QString name)
             titleLabel->setText(removeIndexFromAppend(vector.at(i).second));
             playingIndex = i;
             qDebug()<<"vector.at(i).first.second:  "<<vector.at(i).first.second;
-            mediaPlayer0 ->setMedia(QUrl::fromLocalFile(vector.at(i).first.second));
-            mediaPlayer0->play();
+            player->play(vector.at(i).first.second);
             break;
         }
     }
@@ -1179,12 +1160,12 @@ void MainWidget::slotListWidgetItemDeleted(int n)
         titleLabel->clear();
         playButton->setEnabled(false);
         playingIndex=0;
-        mediaPlayer0->stop();
+        player->stop();
     }
     else
     {
 
-        if(mediaPlayer0->state()!=QMediaPlayer::StoppedState)
+        if(player->state()!=LPlayer::StoppedState)
         {
             if(n < playingIndex)  //删除正在播放视频之前的
             {
@@ -1200,8 +1181,7 @@ void MainWidget::slotListWidgetItemDeleted(int n)
                 if(++playingIndex >= vector.size())
                     playingIndex=0;
 
-                mediaPlayer0 ->setMedia(QUrl::fromLocalFile(vector.at(playingIndex).first.second));
-                mediaPlayer0->play();
+                player->play(vector.at(playingIndex).first.second);
                 listWidget->setCurrentRow(playingIndex);
                 listWidget->setIndex(playingIndex);
             }
@@ -1218,8 +1198,8 @@ void MainWidget::slotListWidgetItemDeleted(int n)
 void MainWidget::slotListWidgetClearAll()
 {
 
-    mediaPlayer0->stop();
-    qDebug()<<"mediaPlayer0->stop() ";
+    player->stop();
+    qDebug()<<"player->stop() ";
     playingIndex = 0;
     listWidget->clear();
     QSqlTableModel mediaTableModel;
@@ -1251,18 +1231,18 @@ void MainWidget::slotListWidgetClearValidItem()
             vector.removeAt(i);
         }
     }
-    if(mediaPlayer0->state() != QMediaPlayer::StoppedState)//if视频出于播放中或暂停中
+    if(player->state() != LPlayer::StoppedState)//if视频出于播放中或暂停中
     {
         if(vector.isEmpty())
         {
             titleLabel->clear();
             playButton->setEnabled(false);
             playingIndex=0;
-            mediaPlayer0->stop();
+            player->stop();
         }
         else
         {
-            QString fileName = mediaPlayer0->currentMedia().canonicalUrl().toString();
+            QString fileName = player->getFileName();
             for(int i=0;i<vector.size();++i)
             {
                 if(fileName == vector.at(i).first.second)
@@ -1360,16 +1340,16 @@ void MainWidget::slotOpenFile()
 //通过滑动条改变当前进度
 void MainWidget::slotSetValue(int value)
 {
-    mediaPlayer0->setPosition(value);
+    player->seek(value);
 }
 
 //根据当前状态设置播放按钮的图标
-void MainWidget::slotStateChanged(QMediaPlayer::State state)
+void MainWidget::slotStateChanged(LPlayer::State state)
 {
     //qDebug()<<"state:  "<<state;
     switch(state)
     {
-        case QMediaPlayer::PlayingState:
+        case LPlayer::PlayingState:
         {
             //playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
             playButton->setStyleSheet("QPushButton{image:url(:/new/player/pause.png);border-radius:25px; background-color: rgb(40,40,40)}"
@@ -1390,16 +1370,16 @@ void MainWidget::slotStateChanged(QMediaPlayer::State state)
 void MainWidget::slotPlayOrPause()
 {
     qDebug()<<"slotPlayOrPause";
-    switch(mediaPlayer0->state())
+    switch(player->state())
     {
-        case QMediaPlayer::PlayingState:
+        case LPlayer::PlayingState:
         {
-            mediaPlayer0->pause();
+            player->togglePause();
             break;
         }
-        case QMediaPlayer::PausedState:
+        case LPlayer::PausedState:
         {
-            mediaPlayer0->play();
+            player->play(url);
             break;
         }
     }
@@ -1417,8 +1397,7 @@ void MainWidget::slotNextVideo()
         //playList->setCurrentIndex(currentIndex);
 
         listWidget->setIndex(playingIndex);
-        mediaPlayer0 ->setMedia(QUrl::fromLocalFile(vector.at(playingIndex).first.second));
-        mediaPlayer0->play();
+        player->play(vector.at(playingIndex).first.second);
         listWidget->setCurrentRow(playingIndex);
     }
 }
@@ -1433,8 +1412,7 @@ void MainWidget::slotLastVideo()
             playingIndex=vector.size()-1;
         //playList->setCurrentIndex(currentIndex);
         listWidget->setIndex(playingIndex);
-        mediaPlayer0 ->setMedia(QUrl::fromLocalFile(vector.at(playingIndex).first.second));
-        mediaPlayer0->play();
+        player->play(vector.at(playingIndex).first.second);
         listWidget->setCurrentRow(playingIndex);
     }
 }
@@ -1442,9 +1420,9 @@ void MainWidget::slotLastVideo()
 //停止视频
 void MainWidget::slotStopVideo()
 {
-    if( (!vector.isEmpty() )&& (mediaPlayer0->state()!=QMediaPlayer::StoppedState))
+    if( (!vector.isEmpty() )&& (player->state()!=LPlayer::StoppedState))
     {
-        mediaPlayer0->stop();
+        player->stop();
     }
 
 }
@@ -1452,7 +1430,7 @@ void MainWidget::slotStopVideo()
 //设置主进度条的值
 void MainWidget::slotSignalPressPosition(qint64 position)
 {
-    mediaPlayer0->setPosition(position);
+    player->seek(position);
     slider->setValue(position);
     //qDebug()<<"slotSignalPressPosition:  "<<position;
 
@@ -1461,7 +1439,7 @@ void MainWidget::slotSignalPressPosition(qint64 position)
 //设置声音进度条的值
 void MainWidget::slotPressVolumePosition(qint64 position)
 {
-    mediaPlayer0->setVolume(position);
+    player->setVolume(position);
     volumeSlider->setValue(position);
     QSqlTableModel settingModel;
     settingModel.setTable("setting");
@@ -1494,17 +1472,21 @@ void MainWidget::slotVideoWidgetMouseLeftDown(bool b)
 //全屏
 void MainWidget::slotVideoWidgetDoubleClicked()
 {
-    videoWidget0->setFullScreen(!videoWidget0->isFullScreen());
     if(!videoWidget0->isFullScreen())
     {
         videoWidget0->setGeometry(2,0,groupBox->size().width(), groupBox->size().height());
+    }
+    else
+    {
+        videoWidget0->setWindowFlags(Qt::Dialog);
+        videoWidget0->setWindowFlags(Qt::Window);
+        videoWidget0->showFullScreen();
     }
 }
 
 void MainWidget::slotVideoWidgetActionInfo()
 {
-    QSize size = mediaPlayer0->currentMedia().canonicalResource().resolution();
-    qDebug()<<mediaPlayer0->currentMedia().canonicalResource().url();
+    int size = 10;
     qDebug()<<size;
 }
 
@@ -1581,8 +1563,8 @@ void MainWidget::slotPositionChanged(qint64 value)
         }
         case 1:       //CurrentItemInLoop:
         {
-            mediaPlayer0->setPosition(0);
-            mediaPlayer0->play();
+            player->seek(0);
+            player->play(url);
             break;
         }
         case 2:     //sequence:
@@ -1591,9 +1573,8 @@ void MainWidget::slotPositionChanged(qint64 value)
             {
                 listWidget->setIndex(playingIndex);
                 listWidget->setCurrentRow(playingIndex);
-                mediaPlayer0->setMedia(QUrl::fromLocalFile(vector.at(playingIndex).first.second));
-                mediaPlayer0->play();
-                mediaPlayer0->setPosition(0);
+                player->play(vector.at(playingIndex).first.second);
+                player->seek(0);
                 break;
             }
             else
@@ -1612,8 +1593,7 @@ void MainWidget::slotPositionChanged(qint64 value)
             }
             listWidget->setIndex(playingIndex);
             listWidget->setCurrentRow(playingIndex);
-            mediaPlayer0->setMedia(QUrl::fromLocalFile(vector.at(playingIndex).first.second));
-            mediaPlayer0->play();
+            player->play(vector.at(playingIndex).first.second);
             break;
 
         }
@@ -1627,8 +1607,7 @@ void MainWidget::slotPositionChanged(qint64 value)
             playingIndex = x;
             listWidget->setIndex(playingIndex);
             listWidget->setCurrentRow(playingIndex);
-            mediaPlayer0->setMedia(QUrl::fromLocalFile(vector.at(playingIndex).first.second));
-            mediaPlayer0->play();
+            player->play(vector.at(playingIndex).first.second);
             break;
         }
         default:
@@ -1638,7 +1617,7 @@ void MainWidget::slotPositionChanged(qint64 value)
     slider->setValue(value);
     QString presentTime(digitalToTime((value)/1000));
     presentTimeLabel->setText(presentTime);
-    //titleLabel->setText(removeIndexFromAppend(vector.at(playingIndex).second));
+    //titleLabel->setText(removeIndexFromAppend(vector.at(playingIndex).second);
 
 
 }

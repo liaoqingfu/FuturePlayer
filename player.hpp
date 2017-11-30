@@ -26,10 +26,17 @@ class LPlayer  : public QObject
 {
     Q_OBJECT
 public:
+    enum State
+    {
+        StoppedState,
+        PlayingState,
+        PausedState
+    };
     LPlayer();
     virtual ~LPlayer() {}
     void play(const QString &);             // 播放
     void stop(bool quitApp = false);        // 停止
+    State state();
     void restart();
     inline bool canUpdatePosition() const
     {
@@ -42,7 +49,8 @@ public:
     void seek(double pos, bool allowAccurate = true);
     void chStream(const QString &s);
     void setSpeed(double);
-
+    void setVolume(int volume);
+    int getVolume(){return 20;};
     bool isPlaying() const;
     void loadSubsFile(const QString &fileName);
     inline QString getUrl() const
@@ -53,7 +61,7 @@ public:
     {
         return pos;
     }
-
+    QString getFileName() {return fileName;};
     double frame_last_pts, frame_last_delay, audio_current_pts, audio_last_delay;
     bool doSilenceOnStart, canUpdatePos, paused, waitForData, flushVideo, flushAudio, muted, reload, nextFrameB, endOfStream, ignorePlaybackError;
     int seekTo, lastSeekTo, restartSeekTo, seekA, seekB, videoSeekPos, audioSeekPos;
@@ -61,7 +69,8 @@ public:
     int flip;
     bool rotate90, spherical, stillImage;
     QString url, newUrl, aRatioName;
-
+    State state_;
+    QString fileName;
 public:
     void stopVThr();
     void stopAThr();

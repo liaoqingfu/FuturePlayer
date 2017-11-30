@@ -69,7 +69,8 @@ SOURCES += \
     streaminfo.cpp \
     setting.cpp \
     modulefactory.cpp \
-    packetbuffer.cpp
+    packetbuffer.cpp \
+    basewidget.cpp
 
 HEADERS += \
         mainwidget.h \
@@ -107,7 +108,8 @@ HEADERS += \
     modulefactory.hpp \
     demuxerthr.hpp \
     packetbuffer.hpp \
-    player.hpp
+    player.hpp \
+    basewidget.h
 
 FORMS += \
         mainwidget.ui
