@@ -1129,8 +1129,9 @@ void MainWidget::slotListWidgetActionOpen()
 //双击列表项更换视频
 void MainWidget::slotListWidgetItemDoubleClick(QString name)
 {
-    qDebug()<<"name:  "<<name;
+    qDebug()<<"name:  "<<name.toStdString().c_str();
     int i;
+    player.play(name);
     QString temp = name.append("(0)");
     for(i=0;i<vector.size();i++)
     {

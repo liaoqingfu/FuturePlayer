@@ -30,6 +30,8 @@
 #include<QMediaPlaylist>
 #include "playlistwidget.h"
 #include "videowidget.h"
+#include "player.hpp"
+
 namespace Ui {
 class MainWidget;
 }
@@ -133,7 +135,7 @@ private:
     ProgressSlider * slider;
     QLabel  * totalTimeLabel;
     QLabel  * presentTimeLabel;
-
+    LPlayer player;
 
     QTimer *mediaTimer;
 

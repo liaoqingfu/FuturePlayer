@@ -1,15 +1,17 @@
 #include "player.hpp"
+#include <QDebug>
 
-/*
-LPlayer::LPlayer()
+LPlayer::LPlayer():
+    demuxThr(nullptr), vThr(nullptr), aThr(nullptr)
 {
     videoEnabled = true;
     audioEnabled = true;
     subtitlesEnabled = true;
-}*/
+}
 
 void LPlayer::play(const QString &_url)
 {
+    qDebug() << "url = " << _url.toStdString().c_str();
     // 创建Demuxer线程
     if (!demuxThr)
     {

@@ -22,11 +22,11 @@ enum
 
 
 
-class LPlayer
+class LPlayer  : public QObject
 {
     Q_OBJECT
 public:
-    LPlayer(){ }
+    LPlayer();
     virtual ~LPlayer() {}
     void play(const QString &);             // 播放
     void stop(bool quitApp = false);        // 停止
@@ -85,7 +85,7 @@ public:
 
     bool quitApp, audioEnabled, videoEnabled, subtitlesEnabled, doSuspend, doRepeat, allowAccurateSeek;
     QTimer timTerminate;
-/*
+
 signals:
     void frameSizeUpdate(int w, int h);
     void audioParamsUpdate(quint8 channels, quint32 sampleRate);
@@ -110,7 +110,7 @@ signals:
     void updateImage(const QImage &img = QImage());
     void videoStarted();
     void uncheckSuspend();
-    */
+
 };
 
 #endif // PLAYER_H
