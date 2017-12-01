@@ -6,6 +6,7 @@
 class Demuxer
 {
 public:
+    Demuxer(){}
     virtual qint64 size() const;
     virtual double length() const = 0;
     virtual int bitrate() const = 0;

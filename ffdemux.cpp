@@ -1,12 +1,20 @@
 #include "ffdemux.h"
 #include "formatcontext.h"
+#include "demuxerfactory.hpp"
 
-FFDemux::FFDemux(QMutex &avcodec_mutex) :
-    avcodec_mutex(avcodec_mutex),
-    abortFetchTracks(false),
-    reconnectStreamed(false)
+#include <qDebug>
+
+//FFDemux::FFDemux(QMutex &avcodec_mutex) :
+//    avcodec_mutex(avcodec_mutex),
+//    abortFetchTracks(false),
+//    reconnectStreamed(false)
+//{
+
+//}
+
+FFDemux::FFDemux()
 {
-
+    qDebug() << "FFDemux init";
 }
 qint64 FFDemux::size() const
 {

@@ -2,6 +2,7 @@
 #include "player.hpp"
 #include "demuxer.h"
 #include "streaminfo.hpp"
+#include "demuxerfactory.hpp"
 /* DemuxerThr */
 
 #include <QCryptographicHash>
@@ -48,11 +49,12 @@ public:
 
 DemuxerThr::DemuxerThr(LPlayer &playC) :
     playC(playC),
-    url(playC.url),
     err(false), demuxerReady(false), hasCover(false),
     skipBufferSeek(false), localStream(true), unknownLength(true), waitingForFillBufferB(false), paused(false), demuxerPaused(false),
     updateBufferedTime(0.0)
-{}
+{
+    url = playC.getUrl();
+}
 DemuxerThr::~DemuxerThr()
 {}
 
@@ -225,6 +227,7 @@ void DemuxerThr::stopVADec()
 
 void DemuxerThr::run()
 {
+    demuxer =  DemuxerCreate("FFDemux");
     qDebug() << "DemuxerThr::run() lily";
 }
 

@@ -8,10 +8,12 @@
 #include <QVector>
 
 class FormatContext;
+
 class FFDemux : public Demuxer
 {
 public:
-    FFDemux(QMutex &);
+    FFDemux();
+    //FFDemux(QMutex &);
     qint64 size() const override final;
     double length() const override final;
     int bitrate() const override final;
@@ -32,7 +34,7 @@ public:
 
     QVector<FormatContext *> formatContexts;
 
-    QMutex &avcodec_mutex;
+    //QMutex &avcodec_mutex;
     QMutex mutex;
 
     bool abortFetchTracks;

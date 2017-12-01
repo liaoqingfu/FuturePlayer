@@ -70,7 +70,8 @@ SOURCES += \
     setting.cpp \
     modulefactory.cpp \
     packetbuffer.cpp \
-    basewidget.cpp
+    basewidget.cpp \
+    demuxerfactory.cpp
 
 HEADERS += \
         mainwidget.h \
@@ -109,7 +110,8 @@ HEADERS += \
     demuxerthr.hpp \
     packetbuffer.hpp \
     player.hpp \
-    basewidget.h
+    basewidget.h \
+    demuxerfactory.hpp
 
 FORMS += \
         mainwidget.ui

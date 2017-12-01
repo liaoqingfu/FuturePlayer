@@ -2,12 +2,22 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QDir>
+#include "demuxerfactory.hpp"
+#include "ffdemux.h"
+
+void RegisterModule()
+{
+    REGISTER_DEMUXER(FFDemux);
+}
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     QApplication::addLibraryPath("image/player");
     QString name = QDir::currentPath();
     QPixmap appIcon((name+"/appIcon.png"));
+
+    RegisterModule();
+
     a.setWindowIcon(appIcon);
 
     MainWidget w;
