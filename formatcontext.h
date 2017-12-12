@@ -5,6 +5,7 @@
 #include <QVector>
 #include "packet.h"
 #include "streaminfo.hpp"
+#include "openthr.hpp"
 
 extern "C"
 {
@@ -43,7 +44,7 @@ public:
     StreamsInfo streamsInfo;
     double currPos;
 private:
-
+    QSharedPointer<AbortContext> abortCtx;
     QVector<int> index_map;
     QVector<AVStream *> streams;
     QVector<TimeStamp> streamsTS;

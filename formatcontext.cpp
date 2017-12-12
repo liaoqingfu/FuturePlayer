@@ -2,7 +2,7 @@
 #include <QDebug>
 #include "formatcontext.h"
 #include "ffcommon.h"
-
+#include "openthr.hpp"
 class AVPacketRAII
 {
 public:
@@ -84,6 +84,35 @@ static void matroska_fix_ass_packet(AVRational stream_timebase, AVPacket *pkt)
         return av_get_sample_fmt_name(stream->codec->sample_fmt);
     }
 #endif
+
+class OpenFmtCtxThr : public OpenThr
+{
+    AVFormatContext *m_formatCtx;
+    AVInputFormat *m_inputFmt;
+
+public:
+    inline OpenFmtCtxThr(AVFormatContext *formatCtx, const QByteArray &url, AVInputFormat *inputFmt, AVDictionary *options, QSharedPointer<AbortContext> &abortCtx) :
+        OpenThr(url, options, abortCtx),
+        m_formatCtx(formatCtx),
+        m_inputFmt(inputFmt)
+    {
+        start();
+    }
+
+    inline AVFormatContext *getFormatCtx() const
+    {
+        return waitForOpened() ? m_formatCtx : nullptr;
+    }
+
+private:
+    void run() override
+    {
+        avformat_open_input(&m_formatCtx, m_url, m_inputFmt, &m_options);
+        if (!wakeIfNotAborted() && m_formatCtx)
+            avformat_close_input(&m_formatCtx);
+    }
+};
+
 
 FormatContext::FormatContext(QMutex &avcodec_mutex, bool reconnectStreamed):
     isError(false),
@@ -426,11 +455,9 @@ bool FormatContext::open(const QString &_url, const QString &param)
     // Useful, e.g. CUVID decoder needs valid PTS
     formatCtx->flags |= AVFMT_FLAG_GENPTS;
 
-    if (avformat_open_input(&formatCtx, url.toUtf8().data(), nullptr, nullptr) != 0)
-    {
-        qDebug()<<"open error";
-        return false; // 打开失败
-    }
+    OpenFmtCtxThr *openThr = new OpenFmtCtxThr(formatCtx, url.toUtf8(), inputFmt, options, abortCtx);
+    formatCtx = openThr->getFormatCtx();
+    openThr->drop();
 
     if (!formatCtx || disabledDemuxers.contains(name()))
         return false;

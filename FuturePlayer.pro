@@ -71,7 +71,8 @@ SOURCES += \
     modulefactory.cpp \
     packetbuffer.cpp \
     basewidget.cpp \
-    demuxerfactory.cpp
+    demuxerfactory.cpp \
+    openthr.cpp
 
 HEADERS += \
         mainwidget.h \
@@ -111,7 +112,8 @@ HEADERS += \
     packetbuffer.hpp \
     player.hpp \
     basewidget.h \
-    demuxerfactory.hpp
+    demuxerfactory.hpp \
+    openthr.hpp
 
 FORMS += \
         mainwidget.ui
