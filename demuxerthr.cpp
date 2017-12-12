@@ -3,7 +3,7 @@
 #include "demuxer.h"
 #include "streaminfo.hpp"
 #include "demuxerfactory.hpp"
-
+#include "ffdec.hpp"
 
 
 /* DemuxerThr */
@@ -231,6 +231,24 @@ void DemuxerThr::stopVADec()
 void DemuxerThr::run()
 {
     demuxer =  DemuxerCreate("FFDemux");
+    // 打开码流
+    demuxer->init(playC.streamInfo_);
+    if(demuxer->open(url) != true)
+    {
+        qDebug() << "demuxer open url = " << url << " failed";
+    }
+
+    // 如果需要音频解码，则初始化音频解码线程
+    if(playC.streamInfo_.getAudioDecoder())
+    {
+        //Decoder * pAudioDec = new FFDec();
+       // pAudioDec->init(playC.streamInfo_);
+       // playC->initAudioThr();      // 初始化线程
+                                 // 设置decoder
+                                    //
+    }
+
+
     qDebug() << "DemuxerThr::run() lily";
 }
 

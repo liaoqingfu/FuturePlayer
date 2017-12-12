@@ -23,6 +23,7 @@ private:
     DemuxerThr(LPlayer &);
     ~DemuxerThr() final;
 
+
     QByteArray getCoverFromStream() const;
 
     inline bool isDemuxerReady() const

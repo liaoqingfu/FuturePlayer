@@ -7,6 +7,7 @@
 #include "videothr.hpp"
 #include "audiothr.h"
 #include "packetbuffer.hpp"
+#include "streaminfo.hpp"
 
 enum
 {
@@ -34,6 +35,13 @@ public:
     };
     LPlayer();
     virtual ~LPlayer() {}
+    bool initAudioThr();
+    bool initVideoThr();
+    void setAudioDecoder(Decoder *dec);
+    void setVideoDecoder(Decoder *dec);
+    void startAudioThr();
+    void startVideoThr();
+
     void play(const QString &);             // 播放
     void stop(bool quitApp = false);        // 停止
     State state();
@@ -71,6 +79,8 @@ public:
     QString url, newUrl, aRatioName;
     State state_;
     QString fileName;
+
+    StreamInfo streamInfo_;
 public:
     void stopVThr();
     void stopAThr();

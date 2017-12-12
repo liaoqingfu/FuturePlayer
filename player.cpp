@@ -158,3 +158,34 @@ void LPlayer::stopADec()
     }
     audio_current_pts = skipAudioFrame = audio_last_delay = 0.0;
 }
+
+
+bool LPlayer::initAudioThr()
+{
+    if(!aThr)
+    {
+        //aThr = new
+    }
+    return true;
+}
+bool LPlayer::initVideoThr()
+{
+    return true;
+}
+
+void LPlayer::setAudioDecoder(Decoder *dec)
+{
+    aThr->setDec(dec);
+}
+void LPlayer::setVideoDecoder(Decoder *dec)
+{
+    vThr->setDec(dec);
+}
+void LPlayer::startAudioThr()
+{
+    aThr->start();
+}
+void LPlayer::startVideoThr()
+{
+    vThr->start();
+}

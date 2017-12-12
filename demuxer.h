@@ -3,6 +3,7 @@
 
 #include "packet.h"
 #include <QByteArray>
+class StreamInfo;
 class Demuxer
 {
 public:
@@ -20,6 +21,7 @@ public:
     virtual void pause(){}
     virtual void abort(){}
     virtual bool open(const QString &url) = 0;
+    virtual bool init(StreamInfo &streamInfo) = 0;
 };
 
 #endif // DEMUX_H
