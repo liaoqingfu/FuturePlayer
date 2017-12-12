@@ -7,7 +7,15 @@
 
 void RegisterModule()
 {
+
+#ifndef QT_DEBUG
+    av_log_set_level(AV_LOG_FATAL);
+#endif
+    av_register_all();
+    avformat_network_init();
+
     REGISTER_DEMUXER(FFDemux);
+
 }
 int main(int argc, char *argv[])
 {
