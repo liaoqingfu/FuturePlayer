@@ -230,9 +230,9 @@ void DemuxerThr::stopVADec()
 
 void DemuxerThr::run()
 {
-    demuxer =  DemuxerCreate("FFDemux");
+    demuxer =  new FFDemux(playC.streamInfo_);//DemuxerCreate("FFDemux");
     // 打开码流
-    demuxer->init(playC.streamInfo_);
+    //demuxer->init(playC.streamInfo_);
     if(demuxer->open(url) != true)
     {
         qDebug() << "demuxer open url = " << url << " failed";
@@ -260,7 +260,6 @@ void DemuxerThr::run()
 
     while (!demuxer->isEof())
     {
-        qDebug() << "DemuxerThr read frame";
         Packet packet;
         Decoder::CodeType  coderType = Decoder::kUnkownDecoder;
         const bool demuxerOk =demuxer->read(packet, coderType);

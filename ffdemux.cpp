@@ -31,14 +31,29 @@ inline void FFDemux::freeCommSpace()
     avformat_close_input(&formatCtx_);
 }
 
-FFDemux::FFDemux()
+//FFDemux::FFDemux():
+//    streamInfo_ (0)
+//{
+//    qDebug() << "FFDemux init";
+//    inputFmt_ = nullptr;
+//    dictOptions_ = nullptr;
+//    formatCtx_ = nullptr;
+//    isEof_ = false;
+//#if LIBAVCODEC_VERSION_MAJOR >= 57
+//    packet_ = av_packet_alloc();
+//#else
+//    packet_ = (AVPacket *)av_malloc(sizeof(AVPacket));
+//    av_init_packet(packet_);
+//#endif
+//}
+FFDemux::FFDemux(StreamInfo &streamInfo):
+    streamInfo_ (streamInfo)
 {
     qDebug() << "FFDemux init";
     inputFmt_ = nullptr;
     dictOptions_ = nullptr;
     formatCtx_ = nullptr;
     isEof_ = false;
-
 #if LIBAVCODEC_VERSION_MAJOR >= 57
     packet_ = av_packet_alloc();
 #else
@@ -46,6 +61,7 @@ FFDemux::FFDemux()
     av_init_packet(packet_);
 #endif
 }
+
 qint64 FFDemux::size() const
 {
     qint64 bytes = -1;
@@ -181,7 +197,6 @@ void FFDemux::abort()
 
 bool FFDemux::isEof()
 {
-    qDebug() << "FFDemux isEof_ = " << isEof_;
     return isEof_;
 }
 
@@ -221,6 +236,7 @@ bool FFDemux::open(const QString &entireUrl)
             streamInfo_.audioIndex_ = i;
             streamInfo_.audioStream_ = formatCtx_->streams[i];
             streamInfo_.audioCodeContex_ = formatCtx_->streams[i]->codec; // codec context
+            qDebug() << "codec_type = " << streamInfo_.audioCodeContex_->codec_type;
             continue;
         }
         else if (AVMEDIA_TYPE_VIDEO == formatCtx_->streams[i]->codec->codec_type)

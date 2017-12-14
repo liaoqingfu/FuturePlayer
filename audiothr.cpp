@@ -42,8 +42,9 @@ void AudioThr::run()
         int bytes_consumed = -1;
         double delay = 0.0, audio_pts = 0.0; //"audio_pts" odporny na zerowanie przy przewijaniu
         Decoder *last_dec = dec;
-
+        playC.aPackets.lock();
         const bool hasAPackets = playC.aPackets.canFetch();
+        playC.aPackets.unlock();
         if(hasAPackets)
         {
             // 先检测下输出buffer是否已经满了

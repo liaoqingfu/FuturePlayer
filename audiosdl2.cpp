@@ -4,8 +4,9 @@
 #define SDL_AUDIO_BUFFER_SIZE  1024
 void audioCallback(void* userdata, Uint8* stream, int len)
 {
-
-    MediaState* media_state = (MediaState*)userdata;
+    int audio_len = 0;
+    int audioVol = 50;
+    //MediaState* media_state = (MediaState*)userdata;
     uint8_t audio_buff[MAX_AUDIO_FRAME_SIZE];
     memset(stream, 0, len);
     static int audio_buf_pos=0;
@@ -16,7 +17,7 @@ void audioCallback(void* userdata, Uint8* stream, int len)
     {
         if(audio_buf_pos>=audio_buf_size)//如果完成
         {
-            audio_buf_size = ;// 从缓冲区读取数据
+            audio_buf_size = 0;// 从缓冲区读取数据
             if (audio_buf_size < 0)
                 return;
             audio_buf_pos=0;
@@ -38,9 +39,9 @@ AudioSdl2::AudioSdl2()
 {
     // Set audio settings from codec info
     SDL_AudioSpec wanted_spec, spec;
-    wanted_spec.freq = media_state_.acct->sample_rate;
+    wanted_spec.freq = 48000;//media_state_.acct->sample_rate;
     wanted_spec.format = AUDIO_S16SYS;
-    wanted_spec.channels = media_state_.acct->channels;
+    wanted_spec.channels = 2;
     wanted_spec.silence = 0;
     wanted_spec.samples = SDL_AUDIO_BUFFER_SIZE;
     wanted_spec.callback = audioCallback;

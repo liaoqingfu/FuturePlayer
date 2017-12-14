@@ -74,7 +74,8 @@ SOURCES += \
     demuxerfactory.cpp \
     openthr.cpp \
     functions.cpp \
-    audiosdl2.cpp
+    audiosdl2.cpp \
+    framequeue.cpp
 
 HEADERS += \
         mainwidget.h \
@@ -117,7 +118,8 @@ HEADERS += \
     demuxerfactory.hpp \
     openthr.hpp \
     functions.hpp \
-    audiosdl2.hpp
+    audiosdl2.hpp \
+    framequeue.h
 
 FORMS += \
         mainwidget.ui

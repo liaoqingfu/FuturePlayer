@@ -24,7 +24,8 @@ extern "C"
 class FFDemux : public Demuxer
 {
 public:
-    FFDemux();
+//    FFDemux();
+    FFDemux(StreamInfo &streamInfo);
     inline void freeCommSpace();
     //FFDemux(QMutex &);
     qint64 size() const override final;
@@ -57,8 +58,9 @@ public:
     AVInputFormat *inputFmt_;       // 如果提前获知文件格式可以直接设置进去，避免反复地探测
     QString entireUrl_;             // 保存播放文件的url
     AVDictionary *dictOptions_;        //
-
-    StreamInfo streamInfo_;
+//    对于  const类型和&引用类型数据成员，其初始化必须在初始化阶段完成。若通过
+//    普通计算阶段来初始化该值，编译器会报错：该变量未初始化。
+    StreamInfo &streamInfo_;
 
     AVPacket *packet_;
     double lastTime_;

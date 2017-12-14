@@ -7,6 +7,7 @@ LPlayer::LPlayer():
     videoEnabled = true;
     audioEnabled = true;
     subtitlesEnabled = true;
+    flushAudio = false;
 }
 
 void LPlayer::play(const QString &_url)

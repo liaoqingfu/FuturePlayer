@@ -1,7 +1,7 @@
 #include "ffdec.hpp"
 #include "functions.hpp"
 #include "pixelformat.hpp"
-
+#include <QDebug>
 extern "C"
 {
     #include <libavformat/avformat.h>
@@ -37,24 +37,27 @@ AVCodec *FFDec::init(StreamInfo &streamInfo, Decoder::CodeType type)
     {
         codec_ = streamInfo.pAudioCodec_;
         pCodecCtx_ = streamInfo.audioCodeContex_;
+        qDebug() << "FFDec::init codec_type: " << streamInfo.audioCodeContex_->codec_type;
+        if(!openCodec(codec_))
+        {
+            qDebug() << "FFDec::init openCodec Audio failed";
+        }
     }
     else if(Decoder::kVideoDecoder == type)
     {
         codec_ = streamInfo.pVideoCodec_;
         pCodecCtx_ = streamInfo.videoCodeContex_;
+        if(!openCodec(codec_))
+        {
+            qDebug() << "FFDec::init openCodec Video failed";
+        }
     }
     return codec_;
 }
 bool FFDec::openCodec(AVCodec *codec)
 {
-    avcodec_mutex.lock();
-    if (avcodec_open2(pCodecCtx_, codec, nullptr))
-    {
-        avcodec_mutex.unlock();
-        return false;
-    }
-    avcodec_mutex.unlock();
     packet = FFCommon::createAVPacket();
+    qDebug() << "pCodecCtx_->codec_type:  " << pCodecCtx_->codec_type;
     switch (pCodecCtx_->codec_type)
     {
         case AVMEDIA_TYPE_VIDEO:

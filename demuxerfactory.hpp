@@ -36,7 +36,8 @@ public:
 
     Demuxer* Create()
     {
-        return new T;
+        //return new T;
+        return nullptr;
     }
 private:
     std::string m_strKey;
