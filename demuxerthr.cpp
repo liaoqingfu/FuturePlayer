@@ -241,15 +241,45 @@ void DemuxerThr::run()
     // 如果需要音频解码，则初始化音频解码线程
     if(playC.streamInfo_.getAudioDecoder())
     {
-        //Decoder * pAudioDec = new FFDec();
-       // pAudioDec->init(playC.streamInfo_);
-       // playC->initAudioThr();      // 初始化线程
-                                 // 设置decoder
-                                    //
+        Decoder * pAudioDec = new FFDec();
+        pAudioDec->init(playC.streamInfo_, Decoder::kAudioDecoder);
+        playC.initAudioThr(pAudioDec);     // 初始化线程
+        playC.startAudioThr();
+    }
+    if(playC.streamInfo_.getVideoDecoder())
+    {
+        Decoder * pVideoDec = new FFDec();
+        pVideoDec->init(playC.streamInfo_, Decoder::kVideoDecoder);
+        playC.initVideoThr(pVideoDec);     // 初始化线程
+        playC.startVideoThr();
     }
 
+    // 读取数据，并放到buffer queue里面
 
     qDebug() << "DemuxerThr::run() lily";
+
+    while (!demuxer->isEof())
+    {
+        qDebug() << "DemuxerThr read frame";
+        Packet packet;
+        Decoder::CodeType  coderType = Decoder::kUnkownDecoder;
+        const bool demuxerOk =demuxer->read(packet, coderType);
+        if(demuxerOk)
+        {
+            if (coderType == Decoder::kAudioDecoder)
+                playC.aPackets.put(packet);
+            else if (coderType == Decoder::kVideoDecoder)
+                playC.vPackets.put(packet);
+            else if (coderType == Decoder::kSubtitleDecoder)
+                playC.sPackets.put(packet);
+        }
+    }
+    // 退出线程,并告诉player准备结束播放，需要等待audio,video全部数据都播放完才会真正结束播放
+    // 释放demuxer
+    qDebug() << "DemuxerThr::run() lily2";
+    delete demuxer;
+    demuxer = nullptr;
+    qDebug() << "DemuxerThr::run() lily3";
 }
 
 void DemuxerThr::stop()

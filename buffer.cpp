@@ -71,7 +71,7 @@ quint8 *Buffer::data()
 
 void Buffer::assign(AVBufferRef *otherBufferRef, qint32 len)
 {
-    av_buffer_unref(&m_bufferRef);
+    av_buffer_unref(&m_bufferRef);              //
     m_bufferRef = otherBufferRef;
     m_size = (len >= 0 && len <= m_bufferRef->size) ? len : m_bufferRef->size;
 }

@@ -35,8 +35,8 @@ public:
     };
     LPlayer();
     virtual ~LPlayer() {}
-    bool initAudioThr();
-    bool initVideoThr();
+    bool initAudioThr(Decoder *dec);
+    bool initVideoThr(Decoder *dec);
     void setAudioDecoder(Decoder *dec);
     void setVideoDecoder(Decoder *dec);
     void startAudioThr();
@@ -104,7 +104,7 @@ public:
 
     bool quitApp, audioEnabled, videoEnabled, subtitlesEnabled, doSuspend, doRepeat, allowAccurateSeek;
     QTimer timTerminate;
-
+    QStringList pluginsName;
 signals:
     void frameSizeUpdate(int w, int h);
     void audioParamsUpdate(quint8 channels, quint32 sampleRate);

@@ -4,6 +4,21 @@
 
 #include <qDebug>
 
+class AVPacketRAII
+{
+public:
+    inline AVPacketRAII(AVPacket *packet) :
+        packet(packet)
+    {}
+    inline ~AVPacketRAII()
+    {
+        av_packet_unref(packet);
+    }
+
+private:
+    AVPacket *packet;
+};
+
 int write_packet(void *opaque, uint8_t *buf, int buf_size)
 {
     qDebug()<< "write_packet = " << buf_size;
@@ -22,6 +37,14 @@ FFDemux::FFDemux()
     inputFmt_ = nullptr;
     dictOptions_ = nullptr;
     formatCtx_ = nullptr;
+    isEof_ = false;
+
+#if LIBAVCODEC_VERSION_MAJOR >= 57
+    packet_ = av_packet_alloc();
+#else
+    packet_ = (AVPacket *)av_malloc(sizeof(AVPacket));
+    av_init_packet(packet_);
+#endif
 }
 qint64 FFDemux::size() const
 {
@@ -79,43 +102,74 @@ bool FFDemux::seek(int pos, bool backward)
     }
     return seeked;
 }
-bool FFDemux::read(Packet &encoded, int &idx)
-{
-    int fmtCtxIdx = -1;
-    int numErrors = 0;
+bool FFDemux::read(Packet &encoded, Decoder::CodeType &codeType)
+{   
+    double timeBase = 0.0;
+    AVPacketRAII avPacketRAII(packet_);
 
-    double ts;
-    for (int i = 0; i < formatContexts.count(); ++i)
+    int result = av_read_frame(formatCtx_, packet_);
+
+    if(0 == result)
     {
-        FormatContext *fmtCtx = formatContexts.at(i);
-        if (fmtCtx->isError)
+        const int ff_idx = packet_->stream_index;
+        if (ff_idx >= formatCtx_->nb_streams)
         {
-            ++numErrors;
-            continue;
+            qDebug() << "Stream index out of range: " << QString::number(ff_idx);
+            return false;
         }
-        if (fmtCtxIdx < 0 || fmtCtx->currPos < ts)
+        encoded.assign(packet_->buf, packet_->size);
+        packet_->buf = nullptr;
+        /**
+        ffmpeg存在多个时间基准(time_base)，对应不同的阶段(结构体)，
+        每个time_base具体的值不一样，ffmpeg提供函数在各个time_base中进行切换。
+        搞清楚各个time_base的来源，对于阅读ffmpeg的代码很重要。
+        typedef struct AVRational{
+            int num; ///< Numerator
+            int den; ///< Denominator
+        } AVRational;
+          */
+        if(streamInfo_.audioIndex_ == packet_->stream_index)
         {
-            ts = fmtCtx->currPos;
-            fmtCtxIdx = i;
+            // AAC码流时, time_base.den = 4800为采样率
+            // packet_->duration = 1024 为每帧采样点的数量
+            timeBase = av_q2d(streamInfo_.audioStream_->time_base);
+            //qDebug() << "aduio timeBase: " << timeBase;
+            codeType = Decoder::kAudioDecoder;
         }
-    }
+        else if(streamInfo_.videoIndex_ == packet_->stream_index)
+        {
+//          有一些帧率frame_rate[每秒出现多少帧]和frame time一帧多少时间（和帧率互为倒数），
+//          不能用一个小数比如23.976来精确表示。所以用一个分母和一个分子来表示， 使用125/2997
+            timeBase = av_q2d(streamInfo_.videoStream_->time_base);
+            //qDebug() << "video timeBase: " << timeBase;
+            codeType = Decoder::kVideoDecoder;
+        }
+        if (packet_->duration > 0)
+        {
+            // 如果为48Khz采样率的AAC码流，则持续时间为 1024*
+            encoded.duration = packet_->duration * timeBase;    // 换算得到每个packet的时长,单位为秒
+        }
+        //qDebug() << "packet_->duration * timeBase " << encoded.duration;
 
-    if (fmtCtxIdx < 0) //Every format context has an error
-        return false;
-
-    if (formatContexts.at(fmtCtxIdx)->read(encoded, idx))
-    {
-        for (int i = 0; i < fmtCtxIdx; ++i)
-            idx += formatContexts.at(i)->streamsInfo.count();
+//      不同的流pts的格式是不同的
+//      这里的pts不是以秒为单位的, 是packet->duration的叠加, 比如audio的pts
+//      a 16384 17408 18432 18432+1024
+//      v 1000 1125 1250 1250+125
+//      packet_->pts * timeBase换算后单位也为秒
+        encoded.ts.setPts(packet_->pts * timeBase, startTime_);
         return true;
     }
-
-    return numErrors < formatContexts.count() - 1; //Not Every format context has an error
+    else
+    {
+        qDebug() << "FFDemux::read result : " << result;
+        // 如果返回false则认为数据读取完了
+        isEof_ = true;
+        return false;
+    }
 }
 void FFDemux::pause()
 {
-    for (FormatContext *fmtCtx : formatContexts)
-        fmtCtx->pause();
+
 }
 void FFDemux::abort()
 {
@@ -123,6 +177,12 @@ void FFDemux::abort()
     for (FormatContext *fmtCtx : formatContexts)
         fmtCtx->abort();
     abortFetchTracks = true;
+}
+
+bool FFDemux::isEof()
+{
+    qDebug() << "FFDemux isEof_ = " << isEof_;
+    return isEof_;
 }
 
 bool FFDemux::open(const QString &entireUrl)
@@ -215,6 +275,9 @@ bool FFDemux::open(const QString &entireUrl)
             return false;
         }
     }
+
+    if ((startTime_ = formatCtx_->start_time / (double)AV_TIME_BASE) < 0.0)
+        startTime_ = 0.0;
     return true;
 }
 
@@ -226,4 +289,16 @@ bool FFDemux::init(StreamInfo &streamInfo)
 void FFDemux::addFormatContext(QString url, const QString &param)
 {
 
+}
+
+inline int64_t FFDemux::getDuration()
+{
+    if(formatCtx_)
+    {
+        return formatCtx_->duration;
+    }
+    else
+    {
+        return 0;
+    }
 }

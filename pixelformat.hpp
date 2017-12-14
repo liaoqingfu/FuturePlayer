@@ -2,6 +2,7 @@
 #define PIXELFORMAT_HPP
 #include <QVector>
 
+
 enum class QMPlay2PixelFormat //Compatible with FFmpeg
 {
     YUV420P =  0,
@@ -13,5 +14,13 @@ enum class QMPlay2PixelFormat //Compatible with FFmpeg
 
     Count   =  6
 };
-using QMPlay2PixelFormats = QVector<QMPlay2PixelFormat>;
+
+class  QMPlay2PixelFormats: public QVector<QMPlay2PixelFormat>
+{
+public:
+
+    QMPlay2PixelFormats(){}
+    ~QMPlay2PixelFormats(){}
+};
+
 #endif // PIXELFORMAT_HPP

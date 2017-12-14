@@ -160,17 +160,22 @@ void LPlayer::stopADec()
 }
 
 
-bool LPlayer::initAudioThr()
+bool LPlayer::initAudioThr(Decoder *dec)
 {
     if(!aThr)
     {
-        //aThr = new
+         aThr = new AudioThr(*this, pluginsName);
+         aThr->setDec(dec);
     }
     return true;
 }
-bool LPlayer::initVideoThr()
+bool LPlayer::initVideoThr(Decoder *dec)
 {
-    return true;
+    if(!vThr)
+    {
+         vThr = new VideoThr(*this, nullptr, pluginsName);
+         vThr->setDec(dec);
+    }
 }
 
 void LPlayer::setAudioDecoder(Decoder *dec)

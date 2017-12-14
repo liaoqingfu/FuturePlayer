@@ -8,7 +8,8 @@ class Packet : public Buffer
 {
 public:
     TimeStamp ts;
-    double duration, sampleAspectRatio = 0.0;
+    double duration;            // 单位为秒
+    double sampleAspectRatio = 0.0;
     bool hasKeyFrame = true;
 };
 #endif // PACKET_H

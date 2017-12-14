@@ -1,7 +1,7 @@
 #include "packetbuffer.hpp"
 
 #include <cmath>
-
+#include <QDebug>
 int PacketBuffer::backwardPackets;
 
 bool PacketBuffer::seekTo(double seekPos, bool backward)
@@ -96,6 +96,7 @@ void PacketBuffer::put(const Packet &packet)
     append(packet);
     m_remainingBytes += packet.size();
     m_remainingDuration += packet.duration;
+    //qDebug() << "m_remainingBytes: " << m_remainingBytes << ", m_remainingDuration: " << m_remainingDuration;
     unlock();
 }
 Packet PacketBuffer::fetch()

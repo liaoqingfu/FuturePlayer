@@ -35,16 +35,17 @@ public:
     bool localStream() const override final;
 
     bool seek(int pos, bool backward) override final;
-    bool read(Packet &encoded, int &idx) override final;
+    bool read(Packet &encoded, Decoder::CodeType &codeType) override final;
     void pause() override final;
     void abort() override final;
+    bool isEof() override final;
 
     bool open(const QString &entireUrl) override final;
     bool init(StreamInfo &streamInfo);
     /**/
 
     void addFormatContext(QString entireUrl, const QString &param = QString());
-
+    inline int64_t getDuration();
     QVector<FormatContext *> formatContexts;
 
     //QMutex &avcodec_mutex;
@@ -58,6 +59,11 @@ public:
     AVDictionary *dictOptions_;        //
 
     StreamInfo streamInfo_;
+
+    AVPacket *packet_;
+    double lastTime_;
+    double startTime_;
+    bool isEof_;
 };
 
 #endif // FFDEMUX_H

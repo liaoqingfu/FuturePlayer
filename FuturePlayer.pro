@@ -72,7 +72,9 @@ SOURCES += \
     packetbuffer.cpp \
     basewidget.cpp \
     demuxerfactory.cpp \
-    openthr.cpp
+    openthr.cpp \
+    functions.cpp \
+    audiosdl2.cpp
 
 HEADERS += \
         mainwidget.h \
@@ -113,7 +115,9 @@ HEADERS += \
     player.hpp \
     basewidget.h \
     demuxerfactory.hpp \
-    openthr.hpp
+    openthr.hpp \
+    functions.hpp \
+    audiosdl2.hpp
 
 FORMS += \
         mainwidget.ui
