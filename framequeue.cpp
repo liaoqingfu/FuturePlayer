@@ -1,5 +1,51 @@
 #include "framequeue.h"
 
+TBBuffer * TBBuffer::CreateInstance(int size ,const char * filter )
+{
+    TBBuffer * tb_buffer = 0;
+    if(filter == 0 ){
+        tb_buffer = new TBSharedBuffer(size);
+    }
+    return tb_buffer;
+}
+
+TBSharedBuffer::TBSharedBuffer(int size)
+{
+    buf_ = BufPtr(new std::vector<char>(size));
+    buf_->resize(0);
+}
+TBSharedBuffer::~TBSharedBuffer()
+{
+
+}
+
+char * TBSharedBuffer::Data()
+{
+    return &buf_->operator[](0);
+}
+int TBSharedBuffer::Size()
+{
+    return buf_->size();
+}
+
+void TBSharedBuffer::Add(void * data, int len)
+{
+    for(int i = 0; i < len; ++i){
+        buf_->push_back(*(char*)((char*)data + i ) );
+         //       memcpy(buf_->data(), data, len);
+    }
+}
+
+void TBSharedBuffer::Clear()
+{
+    buf_->clear();
+}
+
+TBBuffer *TBSharedBuffer::Clone()
+{
+    return new TBSharedBuffer(*this);
+}
+
 FrameQueue::FrameQueue()
 {
 
