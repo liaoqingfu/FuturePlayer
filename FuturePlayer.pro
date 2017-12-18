@@ -75,7 +75,8 @@ SOURCES += \
     openthr.cpp \
     functions.cpp \
     audiosdl2.cpp \
-    framequeue.cpp
+    framequeue.cpp \
+    ringbuffer.cpp
 
 HEADERS += \
         mainwidget.h \
@@ -119,7 +120,8 @@ HEADERS += \
     openthr.hpp \
     functions.hpp \
     audiosdl2.hpp \
-    framequeue.h
+    framequeue.h \
+    ringbuffer.hpp
 
 FORMS += \
         mainwidget.ui

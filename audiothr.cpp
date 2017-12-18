@@ -1,14 +1,16 @@
 #include "audiothr.h"
 #include "player.hpp"
+#include "audiosdl2.hpp"
 
 AudioThr::AudioThr(LPlayer &player, const QStringList &pluginsName) :
      AVThread(player, "audio:", nullptr, pluginsName)
 {
-
+    pAudioSdl2_ = new AudioSdl2();
 }
 AudioThr::~AudioThr()
 {
-
+    if(pAudioSdl2_)
+        delete pAudioSdl2_;
 }
 
 #ifdef Q_OS_WIN
@@ -57,7 +59,10 @@ void AudioThr::run()
             bytes_consumed = dec->decodeAudio(packet, decoded, newChannels, newSampleRate, flushAudio);
             // 把数据写入filter
             //
-
+            if(!pAudioSdl2_->write(decoded.data(), decoded.size()))     // 内存满则休眠
+            {
+                msleep(100);
+            }
         }
     }
 }

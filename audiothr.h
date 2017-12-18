@@ -5,7 +5,7 @@
 #include "avthread.hpp"
 #include <SndResampler.hpp>
 class AudioFilter;
-
+class AudioSdl2;
 class AudioThr : public AVThread
 {
    // Q_OBJECT
@@ -48,6 +48,7 @@ private:
     bool allowAudioDrain;
 
     QVector<AudioFilter *> filters;
+    AudioSdl2 *pAudioSdl2_;
 private slots:
     void pauseVis(bool);
 signals:

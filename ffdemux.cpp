@@ -177,7 +177,7 @@ bool FFDemux::read(Packet &encoded, Decoder::CodeType &codeType)
     }
     else
     {
-        qDebug() << "FFDemux::read result : " << result;
+        qDebug() << "FFDemux::read result finish " << endl;
         // 如果返回false则认为数据读取完了
         isEof_ = true;
         return false;
