@@ -95,105 +95,134 @@ void FFDec::decodeLastStep(Packet &encodedPacket, AVFrame *frame)
     }
 }
 
-int FFDec::decodeAudio(Packet &encodedPacket, Buffer &decoded, quint8 &channels, quint32 &sampleRate, bool flush)
+int FFDec::decodeAudio(AVPacketItem *encodedPacket, uint8_t *pcmBuf, AVFrame *wantedFrame, bool flush)
 {
     int bytes_consumed = 0, frameFinished = 0;
+    int decodeLen=0;
+    int data_size = 0;
+    int got_frame = 0;
+    static SwrContext*pSwr_ctx=NULL;    //转换
 
     decodeFirstStep(encodedPacket, flush);
     if (codec_)
     {
-        bytes_consumed = avcodec_decode_audio4(pCodecCtx_, frame, &frameFinished, packet);
-        if (frameFinished)
+        decodeLen = avcodec_decode_audio4(pCodecCtx_, frame, &got_frame, packet);
+        if (got_frame)
+            data_size = av_samples_get_buffer_size(NULL, pCodecCtx_->channels,  frame->nb_samples, pCodecCtx_->sample_fmt, 0);
+
+        if (frame->channels > 0 && frame->channel_layout == 0)
+            frame->channel_layout = av_get_default_channel_layout(frame->channels);
+        else if (frame->channels == 0 && frame->channel_layout > 0)
+            frame->channels = av_get_channel_layout_nb_channels(frame->channel_layout);
+
+
+        if (pSwr_ctx)
+            swr_free(&pSwr_ctx);
+        pSwr_ctx = swr_alloc_set_opts(nullptr, wanted_frame->channel_layout,
+                                      (AVSampleFormat)wanted_frame->format,
+                                      wanted_frame->sample_rate,
+                                      frame->channel_layout,
+                                      (AVSampleFormat)frame->format,
+                                      frame->sample_rate, 0, nullptr);
+        swr_init(pSwr_ctx);
+
+        int dst_nb_samples = av_rescale_rnd(swr_get_delay(pSwr_ctx, frame->sample_rate) + frame->nb_samples, frame->sample_rate, frame->sample_rate, AVRounding(1));
+        int len2 = swr_convert(pSwr_ctx, &pcmBuf, dst_nb_samples,(const uint8_t**)frame->data, frame->nb_samples);
+        if (len2 < 0)
         {
-            const int samples_with_channels = frame->nb_samples * pCodecCtx_->channels;
-            const int decoded_size = samples_with_channels * sizeof(float);
-            decoded.resize(decoded_size);
-            float *decoded_data = (float *)decoded.data();
-            switch (pCodecCtx_->sample_fmt)
-            {
-                case AV_SAMPLE_FMT_U8:
-                {
-                    uint8_t *data = (uint8_t *)*frame->data;
-                    for (int i = 0; i < samples_with_channels; i++)
-                        decoded_data[i] = (data[i] - 0x7F) / 128.0f;
-                } break;
-                case AV_SAMPLE_FMT_S16:
-                {
-                    int16_t *data = (int16_t *)*frame->data;
-                    for (int i = 0; i < samples_with_channels; i++)
-                        decoded_data[i] = data[i] / 32768.0f;
-                } break;
-                case AV_SAMPLE_FMT_S32:
-                {
-                    int32_t *data = (int32_t *)*frame->data;
-                    for (int i = 0; i < samples_with_channels; i++)
-                        decoded_data[i] = data[i] / 2147483648.0f;
-                } break;
-                case AV_SAMPLE_FMT_FLT:
-                    memcpy(decoded_data, *frame->data, decoded_size);
-                    break;
-                case AV_SAMPLE_FMT_DBL:
-                {
-                    double *data = (double *)*frame->data;
-                    for (int i = 0; i < samples_with_channels; i++)
-                        decoded_data[i] = data[i];
-                } break;
-
-                /* Thanks Wang Bin for this patch */
-                case AV_SAMPLE_FMT_U8P:
-                {
-                    uint8_t **data = (uint8_t **)frame->extended_data;
-                    for (int i = 0; i < frame->nb_samples; ++i)
-                        for (int ch = 0; ch < pCodecCtx_->channels; ++ch)
-                            *decoded_data++ = (data[ch][i] - 0x7F) / 128.0f;
-                } break;
-                case AV_SAMPLE_FMT_S16P:
-                {
-                    int16_t **data = (int16_t **)frame->extended_data;
-                    for (int i = 0; i < frame->nb_samples; ++i)
-                        for (int ch = 0; ch < pCodecCtx_->channels; ++ch)
-                            *decoded_data++ = data[ch][i] / 32768.0f;
-                } break;
-                case AV_SAMPLE_FMT_S32P:
-                {
-                    int32_t **data = (int32_t **)frame->extended_data;
-                    for (int i = 0; i < frame->nb_samples; ++i)
-                        for (int ch = 0; ch < pCodecCtx_->channels; ++ch)
-                            *decoded_data++ = data[ch][i] / 2147483648.0f;
-                } break;
-                case AV_SAMPLE_FMT_FLTP:
-                {
-                    float **data = (float **)frame->extended_data;
-                    for (int i = 0; i < frame->nb_samples; ++i)
-                        for (int ch = 0; ch < pCodecCtx_->channels; ++ch)
-                            *decoded_data++ = data[ch][i];
-                } break;
-                case AV_SAMPLE_FMT_DBLP:
-                {
-                    double **data = (double **)frame->extended_data;
-                    for (int i = 0; i < frame->nb_samples; ++i)
-                        for (int ch = 0; ch < pCodecCtx_->channels; ++ch)
-                            *decoded_data++ = data[ch][i];
-                } break;
-                /**/
-
-                default:
-                    decoded.clear();
-                    break;
-            }
-            channels = pCodecCtx_->channels;
-            sampleRate = pCodecCtx_->sample_rate;
+            return -1;
         }
+        int resampled_data_size = len2 * wanted_frame->channels* av_get_bytes_per_sample((AVSampleFormat)wanted_frame->format);
+
+        return resampled_data_size;
     }
+    return -1;
+//    if (codec_)
+//    {
+//        bytes_consumed = avcodec_decode_audio4(pCodecCtx_, frame, &frameFinished, packet);
+//        if (frameFinished)
+//        {
+//            const int samples_with_channels = frame->nb_samples * pCodecCtx_->channels;
+//            const int decoded_size = samples_with_channels * sizeof(float);
+//            decoded.resize(decoded_size);
+//            float *decoded_data = (float *)decoded.data();
+//            switch (pCodecCtx_->sample_fmt)
+//            {
+//                case AV_SAMPLE_FMT_U8:
+//                {
+//                    uint8_t *data = (uint8_t *)*frame->data;
+//                    for (int i = 0; i < samples_with_channels; i++)
+//                        decoded_data[i] = (data[i] - 0x7F) / 128.0f;
+//                } break;
+//                case AV_SAMPLE_FMT_S16:
+//                {
+//                    int16_t *data = (int16_t *)*frame->data;
+//                    for (int i = 0; i < samples_with_channels; i++)
+//                        decoded_data[i] = data[i] / 32768.0f;
+//                } break;
+//                case AV_SAMPLE_FMT_S32:
+//                {
+//                    int32_t *data = (int32_t *)*frame->data;
+//                    for (int i = 0; i < samples_with_channels; i++)
+//                        decoded_data[i] = data[i] / 2147483648.0f;
+//                } break;
+//                case AV_SAMPLE_FMT_FLT:
+//                    memcpy(decoded_data, *frame->data, decoded_size);
+//                    break;
+//                case AV_SAMPLE_FMT_DBL:
+//                {
+//                    double *data = (double *)*frame->data;
+//                    for (int i = 0; i < samples_with_channels; i++)
+//                        decoded_data[i] = data[i];
+//                } break;
 
-    if (frameFinished)
-        decodeLastStep(encodedPacket, frame);
-    else
-        encodedPacket.ts.setInvalid();
+//                /* Thanks Wang Bin for this patch */
+//                case AV_SAMPLE_FMT_U8P:
+//                {
+//                    uint8_t **data = (uint8_t **)frame->extended_data;
+//                    for (int i = 0; i < frame->nb_samples; ++i)
+//                        for (int ch = 0; ch < pCodecCtx_->channels; ++ch)
+//                            *decoded_data++ = (data[ch][i] - 0x7F) / 128.0f;
+//                } break;
+//                case AV_SAMPLE_FMT_S16P:
+//                {
+//                    int16_t **data = (int16_t **)frame->extended_data;
+//                    for (int i = 0; i < frame->nb_samples; ++i)
+//                        for (int ch = 0; ch < pCodecCtx_->channels; ++ch)
+//                            *decoded_data++ = data[ch][i] / 32768.0f;
+//                } break;
+//                case AV_SAMPLE_FMT_S32P:
+//                {
+//                    int32_t **data = (int32_t **)frame->extended_data;
+//                    for (int i = 0; i < frame->nb_samples; ++i)
+//                        for (int ch = 0; ch < pCodecCtx_->channels; ++ch)
+//                            *decoded_data++ = data[ch][i] / 2147483648.0f;
+//                } break;
+//                case AV_SAMPLE_FMT_FLTP:
+//                {
+//                    float **data = (float **)frame->extended_data;
+//                    for (int i = 0; i < frame->nb_samples; ++i)
+//                        for (int ch = 0; ch < pCodecCtx_->channels; ++ch)
+//                            *decoded_data++ = data[ch][i];
+//                } break;
+//                case AV_SAMPLE_FMT_DBLP:
+//                {
+//                    double **data = (double **)frame->extended_data;
+//                    for (int i = 0; i < frame->nb_samples; ++i)
+//                        for (int ch = 0; ch < pCodecCtx_->channels; ++ch)
+//                            *decoded_data++ = data[ch][i];
+//                } break;
+//                /**/
 
-    if (bytes_consumed < 0)
-        bytes_consumed = 0;
-    return bytes_consumed;
+//                default:
+//                    decoded.clear();
+//                    break;
+//            }
+//            channels = pCodecCtx_->channels;
+//            sampleRate = pCodecCtx_->sample_rate;
+//        }
+//    }
+
 }
 int FFDec::decodeVideo(Packet &encodedPacket, VideoFrame &decoded, QByteArray &newPixFmt, bool flush, unsigned hurry_up)
 {

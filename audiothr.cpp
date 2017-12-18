@@ -33,36 +33,43 @@ void AudioThr::timerEvent(QTimerEvent *)
 }
 #endif
 
+const int MAX_AUDIO_FRAME_SIZE = 192000;
 void AudioThr::run()
 {
     setPriority(QThread::HighestPriority);
 
+    uint8_t audio_buff[MAX_AUDIO_FRAME_SIZE];
     while (!br)
     {
         const bool flushAudio = playC.flushAudio;
-        Packet packet;
+        AVPacketItem *packet;
         int bytes_consumed = -1;
         double delay = 0.0, audio_pts = 0.0; //"audio_pts" odporny na zerowanie przy przewijaniu
         Decoder *last_dec = dec;
-        playC.aPackets.lock();
-        const bool hasAPackets = playC.aPackets.canFetch();
-        playC.aPackets.unlock();
+
+        bool hasAPackets = false;
+        if(playC.aPackets.size() > 0)
+             hasAPackets = true;
+
+
         if(hasAPackets)
         {
             // 先检测下输出buffer是否已经满了
 
-            packet = playC.aPackets.fetch();
+            packet = playC.aPackets.take();
             // 解码
             Buffer decoded;
             quint8 newChannels = 0;
             quint32 newSampleRate = 0;
-            bytes_consumed = dec->decodeAudio(packet, decoded, newChannels, newSampleRate, flushAudio);
+            bytes_consumed = dec->decodeAudio(packet, audio_buff, pAudioSdl2_->wanted_frame, flushAudio);
             // 把数据写入filter
-            //
-            if(!pAudioSdl2_->write(decoded.data(), decoded.size()))     // 内存满则休眠
-            {
-                msleep(100);
-            }
+           if(bytes_consumed > 0)
+           {
+                if(!pAudioSdl2_->write(audio_buff, bytes_consumed))     // 内存满则休眠
+                {
+                    msleep(100);
+                }
+           }
         }
     }
 }

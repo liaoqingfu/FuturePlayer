@@ -76,7 +76,9 @@ SOURCES += \
     functions.cpp \
     audiosdl2.cpp \
     framequeue.cpp \
-    ringbuffer.cpp
+    ringbuffer.cpp \
+    packetqueue.cpp \
+    condition.cpp
 
 HEADERS += \
         mainwidget.h \
@@ -121,7 +123,10 @@ HEADERS += \
     functions.hpp \
     audiosdl2.hpp \
     framequeue.h \
-    ringbuffer.hpp
+    ringbuffer.hpp \
+    packetqueue.h \
+    mutex.h \
+    condition.hpp
 
 FORMS += \
         mainwidget.ui

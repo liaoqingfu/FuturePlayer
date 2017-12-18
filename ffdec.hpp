@@ -27,7 +27,7 @@ public:
 
     void decodeFirstStep(const Packet &encodedPacket, bool flush);
     void decodeLastStep(Packet &encodedPacket, AVFrame *frame);
-    int  decodeAudio(Packet &encodedPacket, Buffer &decoded, quint8 &channels, quint32 &sampleRate, bool flush) override;
+    int  decodeAudio(AVPacketItem *encodedPacket, uint8_t *pcmBuf, AVFrame *wantedFrame, bool flush) override;
     int  decodeVideo(Packet &encodedPacket, VideoFrame &decoded, QByteArray &newPixFmt, bool flush, unsigned hurry_up) override;
     void setPixelFormat();
     void setSupportedPixelFormats(const QMPlay2PixelFormats &pixelFormats);
@@ -52,5 +52,7 @@ public:
     quint8 chromaShiftW, chromaShiftH;
     int desiredPixFmt;
     bool dontConvert;
+
+    AVFrame *wanted_frame;//音频目标帧
 };
 #endif // FFDEC_HPP

@@ -63,8 +63,15 @@ AudioSdl2::AudioSdl2()
     {
         qDebug() << "SDL_OpenAudio init" << endl;
     }
+
+    wanted_frame=av_frame_alloc();
+    wanted_frame->format = AV_SAMPLE_FMT_S16;
+    wanted_frame->sample_rate = spec.freq;
+    wanted_frame->channel_layout = av_get_default_channel_layout(spec.channels);
+    wanted_frame->channels = spec.channels;
+
     pcmRingBuffer_ = new RingBuffer();
-   // SDL_PauseAudio(0);        // 需要调用该函数才能触发调用audioCallback
+   SDL_PauseAudio(0);        // 需要调用该函数才能触发调用audioCallback
 }
 AudioSdl2::~AudioSdl2()
 {

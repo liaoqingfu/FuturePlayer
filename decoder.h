@@ -2,7 +2,9 @@
 #define DECODER_H
 
 #include <QString>
+#include "packetqueue.h"
 struct AVCodec;
+struct AVFrame;
 class StreamInfo;
 class Packet;
 class VideoFrame;
@@ -25,8 +27,8 @@ public:
      * hurry_up >=  1 -> faster decoding, lower image quality, frame skipping during decode
      * hurry_up == ~0 -> much faster decoding, no frame copying
     */
-    virtual int decodeVideo(Packet &encodedPacket, VideoFrame &decoded, QByteArray &newPixFmt, bool flush, unsigned hurry_up);
-    virtual int decodeAudio(Packet &encodedPacket, Buffer &decoded, quint8 &channels, quint32 &sampleRate, bool flush = false);
+    virtual int decodeVideo(Packet &encodedPacket , VideoFrame &decoded, QByteArray &newPixFmt, bool flush, unsigned hurry_up);
+    virtual int decodeAudio( AVPacketItem *encodedPacket, uint8_t *pcmBuf, AVFrame *wantedFrame, bool flush);
     virtual void setSupportedPixelFormats(const QMPlay2PixelFormats &pixelFormats);
 };
 

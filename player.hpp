@@ -8,6 +8,8 @@
 #include "audiothr.h"
 #include "packetbuffer.hpp"
 #include "streaminfo.hpp"
+#include "packetqueue.h"
+
 
 enum
 {
@@ -94,8 +96,10 @@ public:
     VideoThr *vThr;
     AudioThr *aThr;
 
-    PacketBuffer aPackets, vPackets, sPackets;
 
+    PacketQueue<AVPacketItem *> aPackets;
+    PacketQueue<AVPacketItem *> vPackets;
+    PacketQueue<AVPacketItem *> sPackets;
     int audioStream, videoStream, subtitlesStream;
     int choosenAudioStream, choosenVideoStream, choosenSubtitlesStream;
     QString choosenAudioLang, choosenSubtitlesLang;

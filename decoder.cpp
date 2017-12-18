@@ -14,12 +14,13 @@ int Decoder::decodeVideo(Packet &encodedPacket, VideoFrame &decoded, QByteArray 
     Q_UNUSED(hurry_up)
     return 0;
 }
-int Decoder::decodeAudio(Packet &encodedPacket, Buffer &decoded, quint8 &channels, quint32 &sampleRate, bool flush)
+int Decoder::decodeAudio(AVPacketItem *encodedPacket, uint8_t *pcmBuf, AVFrame *wantedFrame, bool flush)
 {
-    Q_UNUSED(channels)
-    Q_UNUSED(sampleRate)
-    Q_UNUSED(flush)
-    return (decoded = encodedPacket).size();
+    Q_UNUSED(encodedPacket)
+    Q_UNUSED(pcmBuf)
+    Q_UNUSED(wantedFrame)
+     Q_UNUSED(flush)
+    return -1;
 }
 
 void Decoder::setSupportedPixelFormats(const QMPlay2PixelFormats &pixelFormats)
