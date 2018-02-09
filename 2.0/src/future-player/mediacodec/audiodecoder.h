@@ -7,7 +7,7 @@ namespace Darren
 class AudioDecoder
 {
 public:
-    AudioDecoder() {}
+    AudioDecoder() ;
     virtual ~AudioDecoder() {}
     virtual int init(const int withHead){}
     virtual int init(const int withHead, const unsigned char *header, int headerLength){  }
