@@ -1,8 +1,16 @@
 HEADERS += \
-    $$PWD/audiodecoder.h \
-    $$PWD/videodecoder.h
+    $$PWD/audio_decoder.h \
+    $$PWD/decoder.h \
+    $$PWD/video_decoder.h \
+    $$PWD/encoder.h \
+    $$PWD/audio_encoder.h \
+    $$PWD/video_encoder.h
 
 SOURCES += \
-    $$PWD/audiodecoder.cpp \
-    $$PWD/videodecoder.cpp
+    $$PWD/audio_decoder.cpp \
+    $$PWD/decoder.cpp \
+    $$PWD/video_decoder.cpp \
+    $$PWD/encoder.cpp \
+    $$PWD/audio_encoder.cpp \
+    $$PWD/video_encoder.cpp
 

@@ -1,0 +1,36 @@
+cmake_minimum_required(VERSION 3.1)
+project(PulseAudio)
+
+set(PulseAudio_HDR
+    PulseAudio.hpp
+    PulseAudioWriter.hpp
+    Pulse.hpp
+)
+
+set(PulseAudio_SRC
+    PulseAudio.cpp
+    PulseAudioWriter.cpp
+    Pulse.cpp
+)
+
+set(PulseAudio_RESOURCES
+    icon.qrc
+)
+
+pkg_check_modules(LIBPULSE libpulse-simple REQUIRED)
+link_directories(${LIBPULSE_LIBRARY_DIRS})
+
+include_directories(../../qmplay2/headers ${LIBPULSE_INCLUDE_DIRS})
+
+add_library(${PROJECT_NAME} ${QMPLAY2_MODULE}
+    ${PulseAudio_HDR}
+    ${PulseAudio_SRC}
+    ${PulseAudio_RESOURCES}
+)
+
+target_link_libraries(${PROJECT_NAME}
+    ${LIBPULSE_LIBRARIES}
+    libqmplay2
+)
+
+install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${MODULES_INSTALL_PATH})

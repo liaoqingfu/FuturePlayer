@@ -1,0 +1,2 @@
+#!/bin/sh
+grep QMPlay2Version "$(dirname "$0")"/src/qmplay2/Version.cpp | cut -c25-32 | grep "\."

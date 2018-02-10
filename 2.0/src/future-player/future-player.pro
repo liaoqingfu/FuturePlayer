@@ -24,7 +24,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 include(mediacodec/mediacodec.pri)
 include(mediaplayer/mediaplayer.pri)
 include(packet/packet.pri)
-
+include(filter/filter.pri)
+include(modules/modules.pri)
 SOURCES += \
         main.cpp \
         homewindow.cpp \

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+lupdate -no-obsolete -locations none src -ts lang/*.ts

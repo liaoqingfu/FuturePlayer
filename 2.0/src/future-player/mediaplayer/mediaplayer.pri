@@ -1,11 +1,11 @@
 HEADERS += \
-    $$PWD/mediaplayerbase.h \
-    $$PWD/avdecodethread.h \
-    $$PWD/audiodecodethread.h \
-    $$PWD/videodecodethread.h
+    $$PWD/audio_decode_thread.h \
+    $$PWD/av_decode_thread.h \
+    $$PWD/mediaplayer_base.h \
+    $$PWD/video_decode_thread.h
 
 SOURCES += \
-    $$PWD/mediaplayerbase.cpp \
-    $$PWD/avdecodethread.cpp \
-    $$PWD/audiodecodethread.cpp \
-    $$PWD/videodecodethread.cpp
+    $$PWD/audio_decode_thread.cpp \
+    $$PWD/av_decode_thread.cpp \
+    $$PWD/mediaplayer_base.cpp \
+    $$PWD/video_decode_thread.cpp

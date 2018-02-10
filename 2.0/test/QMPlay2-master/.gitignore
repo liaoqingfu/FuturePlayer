@@ -1,0 +1,41 @@
+# Compiled Object files
+*.obj
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.dylib
+*.dll
+*.so
+
+# Compiled Static libraries
+*.lai
+*.lib
+*.la
+*.a
+
+# Executables
+*.exe
+*.out
+*.app
+
+#Project config
+CMakeLists.txt.user
+*.pro.user
+
+#Build Directories
+x86_64-w64-mingw32/
+i686-w64-mingw32/
+build/
+app/
+
+# Other files
+notifications_interface.*
+qdbusxml2cpp_wrapper.sh
+object_script.*
+uic_wrapper.sh
+.qmake.stash
+.DS_Store
+Makefile
+*~

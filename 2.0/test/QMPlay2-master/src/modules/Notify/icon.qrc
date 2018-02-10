@@ -1,0 +1,5 @@
+<RCC>
+	<qresource>
+		<file alias="Notify.svgz">Notify.svgz</file>
+	</qresource>
+</RCC>

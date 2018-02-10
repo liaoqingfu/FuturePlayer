@@ -1,0 +1,5 @@
+<RCC>
+	<qresource>
+		<file alias="VideoFilters.svgz">VideoFilters.svgz</file>
+	</qresource>
+</RCC>
